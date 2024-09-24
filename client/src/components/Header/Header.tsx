@@ -5,7 +5,7 @@ import {
     Toolbar,
 } from "@mui/material"
 import { Link } from "react-router-dom"
-import GithubIcon from "~/components/icons/GithubIcon.tsx"
+import GithubIcon from "~/components/Icons/GithubIcon.tsx"
 import text from "~/consts/text.ts"
 import headerStyles from "./Header.styles.ts"
 
