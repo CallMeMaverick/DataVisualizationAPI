@@ -10,15 +10,19 @@ import {
     Box,
     Button,
     Typography,
-    LinearProgress
+    LinearProgress,
+    Alert,
+    TextField
 } from "@mui/material"
-
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
+import FolderOpenIcon from '@mui/icons-material/FolderOpen'
 
 
 function FileUploadMenu() {
     const [file, setFile] = useState<File | null>(null)
     const [uploadedPath, setUploadedPath] = useState<string>('')
     const [uploading, setUploading] = useState<boolean>(false)
+    const [uploaded, setUploaded] = useState<boolean | undefined>(undefined)
     const [snackbar, setSnackbar] = useState<SnackbarStateInterface>({
         open: false,
         message: '',
@@ -45,6 +49,7 @@ function FileUploadMenu() {
         }
 
         setUploading(true)
+        setUploaded(false)
 
         const formData = new FormData()
         if (file) {
@@ -78,6 +83,7 @@ function FileUploadMenu() {
                 severity: "error",
             })
         } finally {
+            setUploaded(true)
             setUploading(false)
         }
     }
@@ -88,55 +94,92 @@ function FileUploadMenu() {
 
 
     return (
-        <Box>
-            <Typography>
-                {text.files.upload}
-            </Typography>
+        <Box sx={fileUploadMenuStyles.wrapper}>
+            <Box>
+                <Typography variant={"h3"} sx={fileUploadMenuStyles.heading}>
+                    {text.files.upload}
+                </Typography>
 
-            <form onSubmit={handleFileSubmit}>
-                <input
-                    type="file"
-                    onChange={handleFileChange}
-                    style={fileUploadMenuStyles.input}
-                    id={"uploaded-file"}
-                />
+                <form
+                    onSubmit={handleFileSubmit}
+                    style={fileUploadMenuStyles.formButtons}
+                >
+                    <Box sx={fileUploadMenuStyles.fileInput}>
+                        <TextField
+                            value={file ? file.name : ''}
+                            variant="outlined"
+                            placeholder="No file selected"
+                            fullWidth
+                            slotProps={{
+                                input: {
+                                    sx: fileUploadMenuStyles.fileTextField,
+                                },
+                            }}
+                            sx={fileUploadMenuStyles.a}
+                        />
+                        <input
+                            type="file"
+                            id="file-input"
+                            style={fileUploadMenuStyles.input}
+                            onChange={handleFileChange}
+                        />
+                        <label htmlFor="file-input">
+                            <Button
+                                variant="contained"
+                                component="span"
+                                sx={fileUploadMenuStyles.fileInput}
+                            >
+                                <FolderOpenIcon sx={{ marginRight: 1 }} />
+                                Select a File
+                            </Button>
+                        </label>
+                    </Box>
 
-                <label htmlFor="uploaded-file">
-                    <Button variant={"contained"} component={"span"}>
-                        {text.files.uploadButton}
-                    </Button>
-                </label>
 
-                {file && (
-                    <Typography variant={"body1"} gutterBottom>
-                        {text.files.selectedFile}: {file.name}
-                    </Typography>
+                    {file && (
+                        <Alert icon={<InfoOutlinedIcon fontSize="inherit" />} severity="info">
+                            <Typography component={"p"} sx={fileUploadMenuStyles.uploadedFile}>
+                                {text.files.selectedFile}
+                                <Typography component={"span"} sx={fileUploadMenuStyles.fileName}>
+                                    {file.name}
+                                </Typography>
+                            </Typography>
+                        </Alert>
+                    )}
+
+                    <Box mt={2}>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            disabled={uploaded || !file}
+                            sx={fileUploadMenuStyles.buttons}
+                        >
+                            {
+                                uploaded === undefined
+                                    ? text.files.upload
+                                    : uploaded
+                                    ? text.files.uploaded
+                                    : text.files.uploading
+                            }
+                        </Button>
+                    </Box>
+                </form>
+
+
+                {uploading && (
+                    <Box mt={2}>
+                        <LinearProgress />
+                    </Box>
                 )}
 
-                <Box mt={2}>
-                    <Button
-                        type="submit"
-                        variant="contained"
-                        color="primary"
-                        disabled={uploading}
-                    >
-                        {uploading ? text.files.uploading : text.files.uploaded}
-                    </Button>
-                </Box>
-            </form>
-
-            {uploading && (
-                <Box mt={2}>
-                    <LinearProgress />
-                </Box>
-            )}
-
-            <SnackbarAlert
-                open={snackbar.open}
-                severity={snackbar.severity}
-                message={snackbar.message}
-                onClose={handleSnackbarClose}
-            />
+                <SnackbarAlert
+                    open={snackbar.open}
+                    severity={snackbar.severity}
+                    message={snackbar.message}
+                    onClose={handleSnackbarClose}
+                />
+            </Box>
         </Box>
     )
 }

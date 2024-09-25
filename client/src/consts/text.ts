@@ -7,7 +7,7 @@ const text = {
         uploaded: "File uploaded successfully",
         upload: "Upload file",
         uploadButton: "Choose a file",
-        selectedFile: "Selected file",
+        selectedFile: "Selected file: ",
         uploading: "Uploading...",
     }
 }
