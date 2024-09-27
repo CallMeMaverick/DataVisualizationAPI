@@ -1,22 +1,31 @@
-import os
-from fastapi import UploadFile
+from fastapi import UploadFile, HTTPException
+from app.utils.file import validate_extension, process_json, process_csv
+import pandas as pd
 
 
 class FileService:
     @staticmethod
-    async def save_uploaded_file(file: UploadFile) -> str:
+    async def process_file(file: UploadFile) -> pd.DataFrame:
         """
-        Uploads a file and returns the path to it
-        :param file: File to upload
-        :return: Path to uploaded file
+        Processes the uploaded file based on its type
+        :param file: File to process
+        :return: Processed data (as a DataFrame for CSV or dict for JSON)
         """
 
-        upload_dir = os.getenv("UPLOAD_DIR", "./files")
-        file_path = os.path.join(upload_dir, file.filename)
-        os.makedirs(upload_dir, exist_ok=True)
+        file_extension = file.filename.split('.')[-1].lower()
+        validate_extension(file_extension)
 
-        with open(file_path, "wb") as buffer:
-            buffer.write(await file.read())
+        file_content = await file.read()
 
-        return file_path
+        if file_extension == "json":
+            data = process_json(file_content)
+        elif file_extension == "csv":
+            data = process_csv(file_content)
+        else:
+            raise HTTPException(
+                status_code=400,
+                detail="Could not process file's extension"
+            )
+
+        return data
 
