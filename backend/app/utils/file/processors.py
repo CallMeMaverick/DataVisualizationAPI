@@ -1,7 +1,8 @@
-from fastapi import HTTPException
 from io import BytesIO
 import pandas as pd
 import json
+from app.constants.errors import file_errors
+from fastapi import HTTPException
 
 
 def process_json(file_content) -> pd.DataFrame:
@@ -11,7 +12,7 @@ def process_json(file_content) -> pd.DataFrame:
     except json.JSONDecodeError:
         raise HTTPException(
             status_code=400,
-            detail="Could not parse JSON"
+            detail=file_errors["BAD_JSON"]
         )
 
 
@@ -20,7 +21,7 @@ def process_csv(file_content) -> pd.DataFrame:
     if csv_data.empty:
         raise HTTPException(
             status_code=400,
-            detail="CSV file is empty"
+            detail=file_errors["BAD_CSV"]
         )
 
     return csv_data
