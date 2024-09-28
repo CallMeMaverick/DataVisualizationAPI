@@ -2,9 +2,9 @@ import React, { useState } from "react"
 import SnackbarAlert from "~/components/Snackbar/SnackbarAlert.tsx"
 import errors from "~/consts/errors.ts"
 import text from "~/consts/text.ts"
-import axiosClient from "~/plugins/axiosClient.ts"
-import URLs from "~/consts/api.ts"
+import fileService from "~/services/fileService.ts"
 import { SnackbarStateInterface } from "~/types"
+import { useChart } from "~/context/chart-context.tsx";
 import fileUploadMenuStyles from "./FileUploadMenu.styles.ts"
 import {
     Box,
@@ -12,17 +12,18 @@ import {
     Typography,
     LinearProgress,
     Alert,
-    TextField
+    TextField,
 } from "@mui/material"
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
 import FolderOpenIcon from '@mui/icons-material/FolderOpen'
+import ChartParams from "../ChartParams/ChartParams.tsx";
 
 
 function FileUploadMenu() {
-    const [file, setFile] = useState<File | null>(null)
-    const [uploadedPath, setUploadedPath] = useState<string>('')
+    const { setColumns } = useChart()
+
+    const [file, setFile] = useState<File | undefined>( undefined)
     const [uploading, setUploading] = useState<boolean>(false)
-    const [uploaded, setUploaded] = useState<boolean | undefined>(undefined)
     const [snackbar, setSnackbar] = useState<SnackbarStateInterface>({
         open: false,
         message: '',
@@ -49,7 +50,6 @@ function FileUploadMenu() {
         }
 
         setUploading(true)
-        setUploaded(false)
 
         const formData = new FormData()
         if (file) {
@@ -57,15 +57,13 @@ function FileUploadMenu() {
         }
 
         try {
-            const response = await axiosClient.post(URLs.file.upload, formData)
-
-            setTimeout(() => {
-                if (response.status === 200) {
-                setUploadedPath(response.data.path)
+            const response = await fileService.uploadFile(formData)
+            if (response.status === 200) {
+                setColumns(response.data.columns)
 
                 setSnackbar({
                     open: true,
-                    message: errors.files.uploaded,
+                    message: text.files.uploaded,
                     severity: "success"
                 })
             } else {
@@ -74,8 +72,7 @@ function FileUploadMenu() {
                     message: errors.file.badRequest,
                     severity: "error"
                 })
-                }
-            }, 1000)
+            }
         } catch (error: any) {
             setSnackbar({
                 open: true,
@@ -83,7 +80,6 @@ function FileUploadMenu() {
                 severity: "error",
             })
         } finally {
-            setUploaded(true)
             setUploading(false)
         }
     }
@@ -91,7 +87,6 @@ function FileUploadMenu() {
     const handleSnackbarClose = () => {
         setSnackbar({...snackbar, open: false})
     }
-
 
     return (
         <Box sx={fileUploadMenuStyles.wrapper}>
@@ -115,7 +110,6 @@ function FileUploadMenu() {
                                     sx: fileUploadMenuStyles.fileTextField,
                                 },
                             }}
-                            sx={fileUploadMenuStyles.a}
                         />
                         <input
                             type="file"
@@ -152,16 +146,9 @@ function FileUploadMenu() {
                             type="submit"
                             variant="contained"
                             color="primary"
-                            disabled={uploaded || !file}
                             sx={fileUploadMenuStyles.buttons}
                         >
-                            {
-                                uploaded === undefined
-                                    ? text.files.upload
-                                    : uploaded
-                                    ? text.files.uploaded
-                                    : text.files.uploading
-                            }
+                            {text.files.upload}
                         </Button>
                     </Box>
                 </form>
@@ -180,6 +167,10 @@ function FileUploadMenu() {
                     onClose={handleSnackbarClose}
                 />
             </Box>
+
+            {snackbar.message === text.files.uploaded && (
+                <ChartParams />
+            )}
         </Box>
     )
 }

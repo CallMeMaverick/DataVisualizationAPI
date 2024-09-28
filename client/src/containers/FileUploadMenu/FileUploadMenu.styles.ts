@@ -1,8 +1,8 @@
 const fileUploadMenuStyles = {
     wrapper: {
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
-        alignItems: "flex-start",
         width: "100%",
         paddingTop: "80px",
     },
