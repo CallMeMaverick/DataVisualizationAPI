@@ -6,5 +6,6 @@ export default interface ChartParameterInterface {
     value: string | null
     options: string[]
     onChange: (event: React.SyntheticEvent, value: string | null) => void
-    sx?: SxProps
+    sx?: SxProps,
+    staticInput?: boolean
 }
