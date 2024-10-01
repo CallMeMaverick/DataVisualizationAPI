@@ -21,7 +21,7 @@ import ChartParams from "../ChartParams/ChartParams.tsx"
 
 
 function FileUploadMenu() {
-    const { setColumns } = useChart()
+    const { dispatch } = useChart()
 
     const [file, setFile] = useState<File | undefined>( undefined)
     const [uploading, setUploading] = useState<boolean>(false)
@@ -60,7 +60,7 @@ function FileUploadMenu() {
         try {
             const response = await fileService.uploadFile(formData)
             if (response.status === 200) {
-                setColumns(response.data.columns)
+                dispatch({ type: "SET_COLUMNS", payload: response.data.columns })
 
                 setSnackbar({
                     open: true,
