@@ -1,41 +1,31 @@
-import { useState, createContext, useContext, ReactNode } from "react"
+import React, { createContext, useContext, useReducer, ReactNode } from "react"
+import { chartReducer } from "~/reducer/chart-reducer.ts"
+import ChartState from "~/types"
+import { Action } from "~/types"
 
 
-interface ChartContextType {
-    columns: string[]
-    setColumns: (columns: string[]) => void
-
-    xAxis: string | null
-    setXAxis: (xAxis: string | null) => void
-
-    yAxis: string | null
-    setYAxis: (yAxis: string | null) => void
-
-    chartType: string | null
-    setChartType: (chartType: string | null) => void
+const initialState: ChartState = {
+    columns: [],
+    xAxis: null,
+    yAxis: null,
+    chartType: null,
+    title: null,
+    xlabel: null,
+    ylabel: null,
 }
 
-const ChartContext = createContext<ChartContextType | undefined>(undefined)
+interface ChartContextType {
+    state: ChartState;
+    dispatch: React.Dispatch<Action>
+}
+
+const ChartContext = createContext<ChartContextType | undefined>(undefined);
 
 export const ChartProvider = ({ children }: { children: ReactNode }) => {
-    const [columns, setColumns] = useState<string[]>([]);
-    const [xAxis, setXAxis] = useState<string | null>(null);
-    const [yAxis, setYAxis] = useState<string | null>(null);
-    const [chartType, setChartType] = useState<string | null>(null);
+    const [state, dispatch] = useReducer(chartReducer, initialState)
 
     return (
-        <ChartContext.Provider
-            value={{
-                columns,
-                setColumns,
-                xAxis,
-                setXAxis,
-                yAxis,
-                setYAxis,
-                chartType,
-                setChartType
-            }}
-        >
+        <ChartContext.Provider value={{ state, dispatch }}>
             {children}
         </ChartContext.Provider>
     )
