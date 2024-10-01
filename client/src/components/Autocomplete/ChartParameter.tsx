@@ -1,13 +1,6 @@
-import React from "react"
 import { TextField, Autocomplete, SxProps } from "@mui/material"
+import ChartParameterInterface from "~/types/index.ts"
 
-interface ChartParameterInterface {
-    label: string
-    value: string | null
-    options: string[]
-    onChange: (event: React.SyntheticEvent, value: string | null) => void
-    sx?: SxProps
-}
 
 function ChartParameter({ label, value, options, onChange, sx }: ChartParameterInterface) {
     return (
