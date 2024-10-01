@@ -1,4 +1,4 @@
-import { TextField, Autocomplete, SxProps } from "@mui/material"
+import { TextField, Autocomplete } from "@mui/material"
 import ChartParameterInterface from "~/types/index.ts"
 
 

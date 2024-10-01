@@ -13,10 +13,11 @@ import {
     LinearProgress,
     Alert,
     TextField,
+    Fade
 } from "@mui/material"
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'
-import FolderOpenIcon from '@mui/icons-material/FolderOpen'
-import ChartParams from "../ChartParams/ChartParams.tsx";
+import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"
+import FolderOpenIcon from "@mui/icons-material/FolderOpen"
+import ChartParams from "../ChartParams/ChartParams.tsx"
 
 
 function FileUploadMenu() {
@@ -88,6 +89,8 @@ function FileUploadMenu() {
         setSnackbar({...snackbar, open: false})
     }
 
+    const successfulUpload = snackbar.message === text.files.uploaded
+
     return (
         <Box sx={fileUploadMenuStyles.wrapper}>
             <Box>
@@ -153,13 +156,6 @@ function FileUploadMenu() {
                     </Box>
                 </form>
 
-
-                {uploading && (
-                    <Box mt={2}>
-                        <LinearProgress />
-                    </Box>
-                )}
-
                 <SnackbarAlert
                     open={snackbar.open}
                     severity={snackbar.severity}
@@ -168,8 +164,12 @@ function FileUploadMenu() {
                 />
             </Box>
 
-            {snackbar.message === text.files.uploaded && (
-                <ChartParams />
+            {successfulUpload && (
+                <Fade in={successfulUpload}>
+                    <div>
+                        <ChartParams />
+                    </div>
+                </Fade>
             )}
         </Box>
     )
