@@ -1,6 +1,9 @@
 const URLs = {
     file: {
         upload: "/file/upload"
+    },
+    chart: {
+        plot: "/chart/plot"
     }
 }
 
