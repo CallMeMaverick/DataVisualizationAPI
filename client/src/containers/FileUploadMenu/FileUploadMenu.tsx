@@ -10,7 +10,6 @@ import {
     Box,
     Button,
     Typography,
-    LinearProgress,
     Alert,
     TextField,
     Fade
@@ -18,18 +17,16 @@ import {
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined"
 import FolderOpenIcon from "@mui/icons-material/FolderOpen"
 import ChartParams from "../ChartParams/ChartParams.tsx"
+import { useSnackBar } from "~/context/snackbar-context.tsx"
 
 
 function FileUploadMenu() {
     const { dispatch } = useChart()
+    const { showSnackbar } = useSnackBar()
 
     const [file, setFile] = useState<File | undefined>( undefined)
     const [uploading, setUploading] = useState<boolean>(false)
-    const [snackbar, setSnackbar] = useState<SnackbarStateInterface>({
-        open: false,
-        message: '',
-        severity: "success"
-  })
+    const [snackbarStatus, setSnackbarStatus] = useState<boolean>(false)
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
@@ -41,12 +38,7 @@ function FileUploadMenu() {
         event.preventDefault()
 
         if (!file) {
-            setSnackbar({
-                open: true,
-                message: errors.files.noFile,
-                severity: "error"
-            })
-
+            showSnackbar(errors.files.noFile, "error")
             return
         }
 
@@ -62,34 +54,17 @@ function FileUploadMenu() {
             if (response.status === 200) {
                 dispatch({ type: "SET_COLUMNS", payload: response.data.columns })
 
-                setSnackbar({
-                    open: true,
-                    message: text.files.uploaded,
-                    severity: "success"
-                })
+                showSnackbar(text.files.uploaded, "success")
+                setSnackbarStatus(true)
             } else {
-                setSnackbar({
-                    open: true,
-                    message: errors.file.badRequest,
-                    severity: "error"
-                })
+                showSnackbar(errors.files.badRequest, "error")
             }
         } catch (error: any) {
-            setSnackbar({
-                open: true,
-                message: error.response?.data?.detail || "An error occurred",
-                severity: "error",
-            })
+            showSnackbar(errors.files.badRequest, "error")
         } finally {
             setUploading(false)
         }
     }
-
-    const handleSnackbarClose = () => {
-        setSnackbar({...snackbar, open: false})
-    }
-
-    const successfulUpload = snackbar.message === text.files.uploaded
 
     return (
         <Box sx={fileUploadMenuStyles.wrapper}>
@@ -155,17 +130,10 @@ function FileUploadMenu() {
                         </Button>
                     </Box>
                 </form>
-
-                <SnackbarAlert
-                    open={snackbar.open}
-                    severity={snackbar.severity}
-                    message={snackbar.message}
-                    onClose={handleSnackbarClose}
-                />
             </Box>
 
-            {successfulUpload && (
-                <Fade in={successfulUpload}>
+            {snackbarStatus && (
+                <Fade in={snackbarStatus}>
                     <div>
                         <ChartParams />
                     </div>
